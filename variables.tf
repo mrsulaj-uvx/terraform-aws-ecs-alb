@@ -274,48 +274,6 @@ variable "stickiness" {
   }
 }
 
-variable "target_group_health_check_enabled" {
-  description = "(Optional) Indicates whether health checks are enabled. Defaults to true."
-  type        = bool
-  default     = true
-}
-
-variable "target_group_health_check_interval" {
-  description = "(Optional) The approximate amount of time, in seconds, between health checks of an individual target. Minimum value 5 seconds, Maximum value 300 seconds. Default 30 seconds."
-  type        = number
-  default     = 30
-}
-
-variable "target_group_health_check_path" {
-  description = "The destination for the health check request."
-  type        = string
-  default     = "/"
-}
-
-variable "target_group_health_check_timeout" {
-  description = "(Optional) The amount of time, in seconds, during which no response means a failed health check. The range is 2 to 120 seconds, and the default is 5 seconds."
-  type        = number
-  default     = 5
-}
-
-variable "target_group_health_check_healthy_threshold" {
-  description = "(Optional) The number of consecutive health checks successes required before considering an unhealthy target healthy. Defaults to 3."
-  type        = number
-  default     = 3
-}
-
-variable "target_group_health_check_unhealthy_threshold" {
-  description = "(Optional) The number of consecutive health check failures required before considering the target unhealthy. Defaults to 3."
-  type        = number
-  default     = 3
-}
-
-variable "target_group_health_check_matcher" {
-  description = "The HTTP codes to use when checking for a successful response from a target. You can specify multiple values (for example, \"200,202\") or a range of values (for example, \"200-299\"). Default is 200."
-  type        = string
-  default     = "200"
-}
-
 variable "ssl_policy" {
   description = "(Optional) The name of the SSL Policy for the listener. . Required if var.https_ports is set."
   type        = string

@@ -136,14 +136,14 @@ resource "aws_lb_target_group" "lb_http_tgs" {
     }
   }
   health_check {
-    enabled             = var.target_group_health_check_enabled
-    interval            = var.target_group_health_check_interval
-    path                = var.target_group_health_check_path
+    enabled             = lookup(each.value, "tg_health_check_enabled", true)
+    interval            = lookup(each.value, "tg_health_check_interval", 30)
+    path                = lookup(each.value, "tg_health_check_path", "/")
     protocol            = lookup(each.value, "target_group_protocol", "HTTP")
-    timeout             = var.target_group_health_check_timeout
-    healthy_threshold   = var.target_group_health_check_healthy_threshold
-    unhealthy_threshold = var.target_group_health_check_unhealthy_threshold
-    matcher             = var.target_group_health_check_matcher
+    timeout             = lookup(each.value, "tg_health_check_timeout", 5)
+    healthy_threshold   = lookup(each.value, "tg_health_check_healthy_threshold", 3)
+    unhealthy_threshold = lookup(each.value, "tg_health_check_unhealthy_threshold", 3)
+    matcher             = lookup(each.value, "tg_health_check_matcher", "200")
   }
   target_type = "ip"
   tags = merge(
@@ -179,14 +179,14 @@ resource "aws_lb_target_group" "lb_https_tgs" {
     }
   }
   health_check {
-    enabled             = var.target_group_health_check_enabled
-    interval            = var.target_group_health_check_interval
-    path                = var.target_group_health_check_path
+    enabled             = lookup(each.value, "tg_health_check_enabled", true)
+    interval            = lookup(each.value, "tg_health_check_interval", 30)
+    path                = lookup(each.value, "tg_health_check_path", "/")
     protocol            = lookup(each.value, "target_group_protocol", "HTTP")
-    timeout             = var.target_group_health_check_timeout
-    healthy_threshold   = var.target_group_health_check_healthy_threshold
-    unhealthy_threshold = var.target_group_health_check_unhealthy_threshold
-    matcher             = var.target_group_health_check_matcher
+    timeout             = lookup(each.value, "tg_health_check_timeout", 5)
+    healthy_threshold   = lookup(each.value, "tg_health_check_healthy_threshold", 3)
+    unhealthy_threshold = lookup(each.value, "tg_health_check_unhealthy_threshold", 3)
+    matcher             = lookup(each.value, "tg_health_check_matcher", "200")
   }
   target_type = "ip"
   tags = merge(

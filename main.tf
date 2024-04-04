@@ -249,50 +249,24 @@ resource "aws_lb_listener_rule" "lb_http_listener_rules" {
   }
 }
 
-# TODO: Figure out how certs will work.
 resource "aws_lb_listener" "lb_https_listeners" {
-  for_each          = var.https_ports
+  # One listener for each port.
+  for_each          = {
+    for port in distinct([for p in var.https_ports: p.listener_port]): tostring(port) => port
+  }
   load_balancer_arn = aws_lb.lb.arn
-  port              = each.value.listener_port
+  port              = each.value
   protocol          = "HTTPS"
   ssl_policy        = var.ssl_policy
   certificate_arn   = var.default_certificate_arn
 
-  dynamic "default_action" {
-    for_each = lookup(each.value, "type", "") == "redirect" ? [1] : []
-    content {
-      type = "redirect"
+  # By default, return 404. Add additional rules for each cluster.
+  default_action {
+    type = "fixed-response"
 
-      redirect {
-        host        = lookup(each.value, "host", "#{host}")
-        path        = lookup(each.value, "path", "/#{path}")
-        port        = lookup(each.value, "port", "#{port}")
-        protocol    = lookup(each.value, "protocol", "#{protocol}")
-        query       = lookup(each.value, "query", "#{query}")
-        status_code = lookup(each.value, "status_code", "HTTP_301")
-      }
-    }
-  }
-
-  dynamic "default_action" {
-    for_each = lookup(each.value, "type", "") == "fixed-response" ? [1] : []
-    content {
-      type = "fixed-response"
-
-      fixed_response {
-        content_type = lookup(each.value, "content_type", "text/plain")
-        message_body = lookup(each.value, "message_body", "Fixed response content")
-        status_code  = lookup(each.value, "status_code", "200")
-      }
-    }
-  }
-
-  # We fallback to using forward type action if type is not defined
-  dynamic "default_action" {
-    for_each = (lookup(each.value, "type", "") == "" || lookup(each.value, "type", "") == "forward") ? [1] : []
-    content {
-      target_group_arn = aws_lb_target_group.lb_https_tgs[each.key].arn
-      type             = "forward"
+    fixed_response {
+      content_type = "text/plain"
+      status_code  = "404"
     }
   }
 
@@ -303,6 +277,22 @@ resource "aws_lb_listener" "lb_https_listeners" {
   }
 
   tags = var.tags
+}
+
+resource "aws_lb_listener_rule" "lb_https_listener_rules" {
+  for_each     = var.https_ports
+  listener_arn = aws_lb_listener.lb_https_listeners[each.value.listener_port].arn
+
+  action {
+    target_group_arn = aws_lb_target_group.lb_https_tgs[each.key].arn
+    type             = "forward"
+  }
+
+  condition {
+    host_header {
+      values = [lookup(each.value, "host_condition", "#{host}")]
+    }
+  }
 }
 
 locals {

@@ -103,11 +103,11 @@ resource "aws_security_group_rule" "ingress_through_http" {
 }
 
 resource "aws_security_group_rule" "ingress_through_https" {
-  for_each          = var.https_ports
+  for_each          = toset([for p in var.https_ports: tostring(p.listener_port)])
   security_group_id = aws_security_group.lb_access_sg.id
   type              = "ingress"
-  from_port         = each.value.listener_port
-  to_port           = each.value.listener_port
+  from_port         = tonumber(each.value)
+  to_port           = tonumber(each.value)
   protocol          = "tcp"
   cidr_blocks       = var.https_ingress_cidr_blocks
   prefix_list_ids   = var.https_ingress_prefix_list_ids
